@@ -4,97 +4,82 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Analogni Casovnik</title>
-    
-    <style>
-
-            body {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                height: 100vh;
-                background-color: rgb(43, 43, 43);
-            }
-            
-            .clock {
-                position: absolute;
-                height: 300px;
-                width: 300px;
-                border-radius: 150px;
-                border: solid 5px rgb(252, 255, 55);
-            }
-            
-            #seconds-hand {
-                position: absolute;
-                height: 130px;
-                width: 2px;
-                background-color: rgb(255, 33, 33);
-                left: 149px;
-                bottom: 149px;
-                opacity: 50%;
-                transform-origin: 0 100%;
-            }
-            
-            #minutes-hand {
-                height: 100px;
-                width: 2px;
-                background-color: rgb(73, 107, 255);
-                position: absolute;
-                left: 149px;
-                bottom: 149px;
-                transform-origin: 0 100%;
-            }
-            
-            #hours-hand {
-                position: absolute;
-                height: 80px;
-                width: 4px;
-                background-color: rgb(242, 225, 252);
-                left: 148px;
-                bottom: 148px;
-                transform-origin: 0 100%;
-            }
-            
-            #center {
-                width: 10px;
-                height: 10px;
-                border-radius: 5px;
-                background-color: rgb(252, 255, 55);
-                position: absolute;
-                left: 145px;
-                bottom: 145px;
-            }
-            
-      </style>
 </head>
 <body>
-    
-    <div class="clock">
-        <div id="seconds-hand"></div>
-        <div id="minutes-hand"></div>
-        <div id="hours-hand"></div>
-        <div id="center"></div>
-    </div>
-    
+
+    <canvas id="my-canvas" width="500" height="500">
+        Your web browser does not support canvas element.
+    </canvas>
+
     <script>
 
-        const secondsHand = document.getElementById("seconds-hand");
-        const minutesHand = document.getElementById("minutes-hand");
-        const hoursHand = document.getElementById("hours-hand");
+            var watch = new Image();
+            watch.src = "clock.png";
+            watch.addEventListener("load",() => setInterval(time, 1000));
 
-        function getTime() {
-            const now = new Date();
-            const seconds = now.getSeconds();
-            const minutes = now.getMinutes();
-            const hours = now.getHours();
-            const timeInterval = 6;
+            var myCanvas = document.getElementById("my-canvas");
+            var ctx = myCanvas.getContext('2d');
+            var radius = myCanvas.height;
+            var mpi = Math.PI / 6;
+            function time() {
 
-            secondsHand.style.transform = "rotate(" + (seconds * timeInterval) +"deg)";
-            minutesHand.style.transform = "rotate(" + (minutes * timeInterval + seconds/10) +"deg)";
-            hoursHand.style.transform = "rotate(" + (hours * 30 + minutes/2) + "deg)";
+                ctx.setTransform(1,0,0,1,0,0);
+                ctx.clearRect(0,0,myCanvas.width, myCanvas.height);
 
-        }
+                radius = myCanvas.height / 2;
+                ctx.translate(radius, radius);
+                radius = radius * 0.90
 
-        setInterval(getTime, 100);
+                ctx.drawImage(watch, -250, -250);
+
+                var now = new Date();
+                var hour = now.getHours();
+                var minute = now.getMinutes();
+                var second = now.getSeconds();
+
+                hourHand(ctx, (hour % 12 + minute / 60 + second / 3600) * mpi);
+                minuteHand(ctx, (minute + second  / 60) * mpi / 5);
+                secondHand(ctx, second * mpi / 5);
+            }
+
+            function hourHand(ctx, h) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.rotate(h);
+                ctx.lineTo(0, -radius * 0.3);
+                ctx.strokeStyle = "black";
+                ctx.lineWidth = 8;
+                ctx.closePath();
+                ctx.stroke();
+                ctx.restore();
+            }
+
+            function minuteHand(ctx, m) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.rotate(m);
+                ctx.lineTo(0, -radius * 0.5);
+                ctx.strokeStyle = "black";
+                ctx.lineWidth = 5;
+                ctx.closePath();
+                ctx.stroke();
+                ctx.restore();
+            }
+
+            function secondHand(ctx, s) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.rotate(s);
+                ctx.lineTo(0, -radius * 0.6);
+                ctx.strokeStyle = "red";
+                ctx.lineWidth = 1;
+                ctx.closePath();
+                ctx.stroke();
+                ctx.restore();
+            }
 
     </script>
 </body>
